@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sun, Moon } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { getPanchangaData } from '../src/api/endpoints/panchanga';
 
 // Add this interface for type safety
 interface PanchangData {
@@ -27,28 +29,27 @@ interface PanchangData {
 
 export default function Panchanga() {
   const navigation = useNavigation();
+  const [panchangData, setPanchangData] = useState<PanchangData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // This would come from your backend
-  const panchangData: PanchangData = {
-    location: "काठमाडौं, नेपाल",
-    date: "सोमबार, चैत्र ११, २०८०",
-    sunrise: "०६:०३",
-    sunset: "१८:१७",
-    tithi: "दशमी - ०५:२०, चैत्र १२ सम्म",
-    nakshatra: "उत्तराषाढा - ०४:४२, चैत्र १२ सम्म",
-    yoga: "परिघ - १७:०० सम्म",
-    karana: "वणिज - १७:४२ सम्म",
-    secondKarana: "विष्टि - ०५:२०, चैत्र १२ सम्म",
-    paksha: "कृष्ण पक्ष",
-    weekday: "सोमबार",
-    amantaMonth: "फाल्गुन",
-    purnimantMonth: "चैत्र",
-    moonRashi: "धनु - १०:४० सम्म",
-    sunRashi: "मीन",
-    dayNumber: "११",
-    shakaSamvat: "१९४६ कौलव",
-    vikramSamvat: "२०८१ विकृत"
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getPanchangaData();
+        if (!response.success) {
+          throw new Error(response.error);
+        }
+        setPanchangData(response.data as PanchangData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load panchanga data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const InfoRow = ({ label, value }: { label: string, value: string }) => (
     <View style={styles.row}>
@@ -56,6 +57,22 @@ export default function Panchanga() {
       <Text style={styles.value}>{value}</Text>
     </View>
   );
+
+  if (loading) {
+    return (
+      <LinearGradient colors={['#1A237E', '#311B92']} style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color="#ffffff" />
+      </LinearGradient>
+    );
+  }
+
+  if (error || !panchangData) {
+    return (
+      <LinearGradient colors={['#1A237E', '#311B92']} style={[styles.container, styles.centered]}>
+        <Text style={styles.errorText}>{error || 'No data available'}</Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient colors={['#1A237E', '#311B92']} style={styles.container}>
@@ -208,5 +225,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#D32F2F',
     fontWeight: '500',
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#ffffff',
+    fontSize: 16,
+    textAlign: 'center',
+    padding: 20,
   },
 });

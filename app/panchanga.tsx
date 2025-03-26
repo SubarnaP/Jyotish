@@ -1,202 +1,212 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ArrowLeft, Sun, Moon, Star, Calendar, ChevronDown } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Sun, Moon } from 'lucide-react-native';
+
+// Add this interface for type safety
+interface PanchangData {
+  location: string;
+  date: string;
+  sunrise: string;
+  sunset: string;
+  tithi: string;
+  nakshatra: string;
+  yoga: string;
+  karana: string;
+  secondKarana: string;
+  paksha: string;
+  weekday: string;
+  amantaMonth: string;
+  purnimantMonth: string;
+  moonRashi: string;
+  sunRashi: string;
+  dayNumber: string;
+  shakaSamvat: string;
+  vikramSamvat: string;
+}
 
 export default function Panchanga() {
-  const router = useRouter();
+  const navigation = useNavigation();
+
+  // This would come from your backend
+  const panchangData: PanchangData = {
+    location: "काठमाडौं, नेपाल",
+    date: "सोमबार, चैत्र ११, २०८०",
+    sunrise: "०६:०३",
+    sunset: "१८:१७",
+    tithi: "दशमी - ०५:२०, चैत्र १२ सम्म",
+    nakshatra: "उत्तराषाढा - ०४:४२, चैत्र १२ सम्म",
+    yoga: "परिघ - १७:०० सम्म",
+    karana: "वणिज - १७:४२ सम्म",
+    secondKarana: "विष्टि - ०५:२०, चैत्र १२ सम्म",
+    paksha: "कृष्ण पक्ष",
+    weekday: "सोमबार",
+    amantaMonth: "फाल्गुन",
+    purnimantMonth: "चैत्र",
+    moonRashi: "धनु - १०:४० सम्म",
+    sunRashi: "मीन",
+    dayNumber: "११",
+    shakaSamvat: "१९४६ कौलव",
+    vikramSamvat: "२०८१ विकृत"
+  };
+
+  const InfoRow = ({ label, value }: { label: string, value: string }) => (
+    <View style={styles.row}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{value}</Text>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
-      {/* Mandala Background Overlay */}
+    <LinearGradient colors={['#1A237E', '#311B92']} style={styles.container}>
       <Image
         source={{ uri: 'https://storage.googleapis.com/uxpilot-auth.appspot.com/ace5ef5a97-362402b7868e2adb7acc.png' }}
         style={styles.backgroundImage}
       />
-
-      {/* Main Content */}
       <ScrollView style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}>
-            <ArrowLeft size={24} color="#FFD700" />
-          </TouchableOpacity>
-          <Text style={styles.title}>
-            <Star size={24} color="#FFD700" style={styles.titleIcon} />
-            Nepali Panchang
-          </Text>
-          <View style={{ width: 32 }} />
-        </View>
+        <View style={styles.panchangContainer}>
+          <View style={styles.headerCard}>
+            <Text style={styles.locationText}>{panchangData.location}</Text>
+            <Text style={styles.dateText}>{panchangData.date}</Text>
+          </View>
 
-        {/* Date Selector */}
-        <TouchableOpacity style={styles.card}>
-          <View style={styles.dateSelector}>
-            <View style={styles.dateSelectorContent}>
-              <Calendar size={20} color="#FFD700" />
-              <Text style={styles.goldText}>Choose Date</Text>
-              <ChevronDown size={20} color="#FFD700" style={styles.chevron} />
+          <View style={styles.sunCard}>
+            <View style={styles.sunInfo}>
+              <Sun size={24} color="#FF6F00" />
+              <InfoRow label="सूर्योदय:" value={panchangData.sunrise} />
+            </View>
+            <View style={styles.sunInfo}>
+              <Moon size={24} color="#FFB74D" />
+              <InfoRow label="सूर्यास्त:" value={panchangData.sunset} />
             </View>
           </View>
-          <Text style={styles.dateRangeText}>Data available from 2018 AD</Text>
-        </TouchableOpacity>
 
-        {/* Current Date Display */}
-        <View style={styles.card}>
-          <Text style={styles.nepaliDate}>वि.सं२०८१ चैत्र २ शनिवार</Text>
-          <Text style={styles.englishDate}>ईसवी 2025 Mar 15, Saturday</Text>
-        </View>
+          <View style={styles.mainCard}>
+            <InfoRow label="तिथि:" value={panchangData.tithi} />
+            <InfoRow label="नक्षत्र:" value={panchangData.nakshatra} />
+            <InfoRow label="योग:" value={panchangData.yoga} />
+          </View>
 
-        {/* Sun Moon Timings */}
-        <View style={styles.card}>
-          <View style={styles.timingsGrid}>
-            <View style={styles.timingItem}>
-              <Sun size={20} color="#FFD700" />
-              <Text style={styles.timingText}>सूर्य: 6:16 | 18:12</Text>
-            </View>
-            <View style={styles.timingItem}>
-              <Moon size={20} color="#FFD700" />
-              <Text style={styles.timingText}>चन्द्र: 7:18 PM | 6:43 AM</Text>
-            </View>
+          <View style={styles.karanaCard}>
+            <InfoRow label="करण:" value={panchangData.karana} />
+            <InfoRow label="द्वितीय करण:" value={panchangData.secondKarana} />
           </View>
-        </View>
 
-        {/* Tithi & Nakshatra */}
-        <View style={styles.card}>
-          <Text style={styles.goldText}>प्रतिपदा upto 14:51:21</Text>
-          <View style={styles.divider} />
-          <Text style={styles.goldText}>उत्तरफाल्गुनी upto 9:11:16</Text>
-        </View>
+          <View style={styles.detailsCard}>
+            <InfoRow label="पक्ष:" value={panchangData.paksha} />
+            <InfoRow label="बार:" value={panchangData.weekday} />
+            <InfoRow label="अमान्त महिना:" value={panchangData.amantaMonth} />
+            <InfoRow label="पूर्णिमान्त महिना:" value={panchangData.purnimantMonth} />
+          </View>
 
-        {/* Additional Details Grid */}
-        <View style={styles.detailsGrid}>
-          <View style={styles.gridItem}>
-            <View style={styles.detailRow}>
-              <Moon size={20} color="#FFD700" />
-              <Text style={styles.whiteText}>पक्ष: चैत्र कृष्ण पक्ष</Text>
-            </View>
+          <View style={styles.rashiCard}>
+            <InfoRow label="चन्द्र राशि:" value={panchangData.moonRashi} />
+            <InfoRow label="सूर्य राशि:" value={panchangData.sunRashi} />
           </View>
-          <View style={styles.gridItem}>
-            <View style={styles.detailRow}>
-              <Star size={20} color="#FFD700" />
-              <Text style={styles.whiteText}>चन्द्र राशि: कन्या</Text>
-            </View>
-          </View>
-          <View style={styles.gridItem}>
-            <Text style={styles.whiteText}>दिनमान: 11hr 56min</Text>
-          </View>
-          <View style={styles.gridItem}>
-            <Text style={styles.whiteText}>ऋतु: वसन्त</Text>
+
+          <View style={styles.samvatCard}>
+            <InfoRow label="प्रतिपदा/गते:" value={panchangData.dayNumber} />
+            <InfoRow label="शक सम्वत्:" value={panchangData.shakaSamvat} />
+            <InfoRow label="विक्रम सम्वत्:" value={panchangData.vikramSamvat} />
           </View>
         </View>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1A237E',
   },
   backgroundImage: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.1,
+    opacity: 0.05,
   },
   content: {
     flex: 1,
     padding: 16,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  backButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#FFD700',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    color: '#fff',
-    fontWeight: 'bold',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  titleIcon: {
-    marginRight: 8,
-  },
-  card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  dateSelector: {
-    marginBottom: 8,
-  },
-  dateSelectorContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  goldText: {
-    color: '#FFD700',
-    marginLeft: 8,
-  },
-  chevron: {
-    marginLeft: 'auto',
-  },
-  dateRangeText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 12,
-  },
-  nepaliDate: {
-    fontSize: 24,
-    color: '#fff',
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  englishDate: {
-    color: '#9ca3af',
-  },
-  timingsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  timingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  timingText: {
-    color: '#fff',
-  },
-  divider: {
-    height: 16,
-  },
-  detailsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  panchangContainer: {
     gap: 16,
   },
-  gridItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+  headerCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     padding: 16,
-    width: '47%',
+    borderRadius: 12,
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  detailRow: {
+  locationText: {
+    fontSize: 24,
+    color: '#1A237E',
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  dateText: {
+    fontSize: 18,
+    color: '#311B92',
+  },
+  sunCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 16,
+    borderRadius: 12,
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    elevation: 4,
+  },
+  sunInfo: {
     alignItems: 'center',
     gap: 8,
   },
-  whiteText: {
-    color: '#fff',
+  mainCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 4,
+  },
+  karanaCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 4,
+  },
+  detailsCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 4,
+  },
+  rashiCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 4,
+  },
+  samvatCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  label: {
+    fontSize: 16,
+    color: '#1A237E',
+    fontWeight: '500',
+  },
+  value: {
+    fontSize: 16,
+    color: '#D32F2F',
+    fontWeight: '500',
   },
 });
